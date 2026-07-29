@@ -1,11 +1,16 @@
+
 locals {
+  image_parts = split(":", var.image)
+  image_name  = local.image_parts[0]
+  image_tag   = length(local.image_parts) > 1 ? local.image_parts[1] : "latest"
+
   helm_values = yamlencode({
     nameOverride = var.name
     replicaCount = var.replicas
 
     image = {
-      repository = split(":", var.image)[0]
-      tag        = length(split(":", var.image)) > 1 ? split(":", var.image)[1] : "latest"
+      repository = local.image_name
+      tag        = local.image_tag
       pullPolicy = "IfNotPresent"
     }
 
@@ -18,9 +23,16 @@ locals {
     containerPort = var.port
 
     readinessProbe = {
-      path = "/"
+      path                = "/"
       initialDelaySeconds = 5
       periodSeconds       = 10
+    }
+
+    livenessProbe = {
+      path                = "/"
+      initialDelaySeconds = 15
+      periodSeconds       = 20
+      failureThreshold    = 3
     }
 
     resources = {

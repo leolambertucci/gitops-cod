@@ -19,6 +19,11 @@ jobs:
         with:
           terraform_version: 1.9.8
 
-      - name: Terraform fmt
+      - name: Terraform format check
         run: terraform fmt -check -recursive
 
+      - name: Terraform validation
+        run: |
+          cd modules/app
+          terraform init -backend=false
+          terraform validate
