@@ -7,7 +7,7 @@ on:
       - main
 
 jobs:
-  validate:
+  validate-terraform:
     runs-on: ubuntu-latest
 
     steps:
@@ -39,3 +39,16 @@ jobs:
           cd envs/dev/app
           terragrunt init
           terragrunt validate
+
+  validate-helm:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v5
+
+      - name: Helm chart lint
+        run: helm lint charts/hello-world-app -f charts/hello-world-app/values.yaml
