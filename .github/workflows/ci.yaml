@@ -27,3 +27,15 @@ jobs:
           cd modules/app
           terraform init -backend=false
           terraform validate
+
+      - name: Setup Terragrunt
+        run: |
+          wget -O /tmp/terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v0.55.0/terragrunt_linux_amd64
+          chmod +x /tmp/terragrunt
+          sudo mv /tmp/terragrunt /usr/local/bin/
+
+      - name: Terragrunt validation
+        run: |
+          cd envs/dev/app
+          terragrunt init
+          terragrunt validate
