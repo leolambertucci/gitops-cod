@@ -1,14 +1,13 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: {{ include "hello-world-app.fullname" . }}
+  name: hello-world-app
   labels:
-    {{- include "hello-world-app.labels" . | nindent 4 }}
+    app.kubernetes.io/name: hello-world-app
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "hello-world-app.name" . }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/name: hello-world-app
   policyTypes:
     - Ingress
   ingress:

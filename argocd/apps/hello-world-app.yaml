@@ -10,9 +10,6 @@ spec:
     repoURL: https://github.com/leolambertucci/gitops-cod.git
     targetRevision: HEAD
     path: charts/hello-world-app
-    helm:
-      valueFiles:
-        - values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: hello-world-app

@@ -47,8 +47,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.9.8
+
+      - name: Setup Terragrunt
+        run: |
+          wget -O /tmp/terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v0.55.0/terragrunt_linux_amd64
+          chmod +x /tmp/terragrunt
+          sudo mv /tmp/terragrunt /usr/local/bin/
+
       - name: Setup Helm
         uses: azure/setup-helm@v5
 
       - name: Helm chart lint
-        run: helm lint charts/hello-world-app -f charts/hello-world-app/values.yaml
+        run: |
+          helm lint charts/hello-world-app -f <(
+            cd envs/dev/app && \
+            terragrunt init >/dev/null && \
+            terragrunt output -raw helm_values 2>/dev/null | sed -n '/^[a-zA-Z0-9_-][a-zA-Z0-9_-]*:/,$p'
+          )
