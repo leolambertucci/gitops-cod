@@ -71,5 +71,11 @@ jobs:
           test -s /tmp/hello-world-app-values.yaml
           grep -Eq '^"?service"?:' /tmp/hello-world-app-values.yaml
 
+      - name: Print generated Helm values
+        run: |
+          echo "--- /tmp/hello-world-app-values.yaml ---"
+          cat /tmp/hello-world-app-values.yaml
+          echo "--- end ---"
+
       - name: Helm chart lint
         run: helm lint charts/hello-world-app -f /tmp/hello-world-app-values.yaml
