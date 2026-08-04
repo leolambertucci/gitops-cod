@@ -34,7 +34,12 @@ argocd-install:
 argocd-deploy:
 	@$(MAKE) check-terragrunt
 	@kubectl create namespace hello-world-app >/dev/null 2>&1 || true
-	@VALUES=$$(cd envs/dev/app && terragrunt init >/dev/null && terragrunt output -raw helm_values 2>/dev/null | sed -n '/^[a-zA-Z0-9_-][a-zA-Z0-9_-]*:/,$$p'); \
+	@VALUES=$$( \
+		cd envs/dev/app; \
+		terragrunt init >/dev/null; \
+		terragrunt apply -auto-approve -input=false >/dev/null; \
+		terragrunt output -raw helm_values 2>/dev/null | sed -n '/^[[:space:]]*"\?[a-zA-Z0-9_-]\+"\?:/,$$p' \
+	); \
 	awk '1; /path: charts\/hello-world-app/ { print "    helm:"; print "      values: |" }' argocd/apps/hello-world-app.yaml | \
 	awk -v values="$$VALUES" 'BEGIN { n=split(values, a, "\\n"); for (i=1; i<=n; i++) if (length(a[i])>0) print "        " a[i] } { print }' | \
 	kubectl apply -f - >/dev/null

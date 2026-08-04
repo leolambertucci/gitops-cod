@@ -61,10 +61,15 @@ jobs:
       - name: Setup Helm
         uses: azure/setup-helm@v5
 
-      - name: Helm chart lint
+      - name: Generate Helm values from Terragrunt
         run: |
-          helm lint charts/hello-world-app -f <(
-            cd envs/dev/app && \
-            terragrunt init >/dev/null && \
-            terragrunt output -raw helm_values 2>/dev/null | sed -n '/^[a-zA-Z0-9_-][a-zA-Z0-9_-]*:/,$p'
-          )
+          set -euo pipefail
+          cd envs/dev/app
+          terragrunt init >/dev/null
+          terragrunt apply -auto-approve -input=false >/dev/null
+          terragrunt output -raw helm_values 2>/dev/null | sed -n '/^[[:space:]]*"\?[a-zA-Z0-9_-]\+"\?:/,$p' > /tmp/hello-world-app-values.yaml
+          test -s /tmp/hello-world-app-values.yaml
+          grep -Eq '^"?service"?:' /tmp/hello-world-app-values.yaml
+
+      - name: Helm chart lint
+        run: helm lint charts/hello-world-app -f /tmp/hello-world-app-values.yaml
